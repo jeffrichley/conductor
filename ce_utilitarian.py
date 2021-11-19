@@ -1,6 +1,8 @@
 from game import *
+from utils import *
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from cvxopt.modeling import op
 from cvxopt.modeling import variable
@@ -64,7 +66,7 @@ collect = False
 f = open('ce-'+str(alpha_decay) + '-' + str(alpha) + '-' + str(epsilon_chance) + '.csv', "w+")
 
 steps = num_sessions
-for t in range(steps):
+for t in tqdm(range(steps), mininterval=5):
 
     # 1. simulate actions a1, ..., an in state s
     # figure out what each player will do and simulate it
@@ -199,9 +201,9 @@ for t in range(steps):
         tmp = plot_values[-1]
     plot_value = abs(tmp)
     plot_values.append(plot_value)
-    if t % 100 == 0:
-        length = (time.time() - start_time)
-        print(t, plot_value, alpha, length, epsilon_chance, alpha_start)
+    # if t % 100 == 0:
+    #     length = (time.time() - start_time)
+        # print(t, plot_value, alpha, length, epsilon_chance, alpha_start)
     old_value = new_value
 
     game_steps += 1

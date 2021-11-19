@@ -28,11 +28,6 @@ epsilon_decay = 0.00008
 # e_decay = (epsilon-.001)/(num_sessions-100000)
 
 
-
-# stuff about the game
-
-
-
 # always start in this state because the paper said so
 start_state = (1, 2, 1)
 
@@ -66,16 +61,7 @@ def random_state():
 
     return (ball, p1, p2)
 
-def decay_alpha(t, alpha):
-    alpha = max(0.001, alpha * 0.999994)
-    return alpha
 
-def decay_epsilon(t, epsilon):
-    epsilon = min_epsilon + (max_epsilon - min_epsilon) * math.exp(-epsilon_decay * t)
-    if epsilon < min_epsilon:
-        epsilon = min_epsilon
-
-    return epsilon
 
 # this implementation is embarrassing
 def get_next_location(current_location, action):
