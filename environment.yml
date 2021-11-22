@@ -1,0 +1,10 @@
+name: conductor
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - numpy
+  - tqdm
+  - cvxopt
+  - matplotlib
