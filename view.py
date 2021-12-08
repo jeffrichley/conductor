@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from prisoner_game import *
 
-steps = 1000000
+
+steps = num_sessions
 
 plot_values = np.genfromtxt('ce-0.999995-0.6-0.1.csv', delimiter=',')
 x = plot_values[:,0]

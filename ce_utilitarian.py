@@ -1,4 +1,5 @@
-from game import *
+# from game import *
+from prisoner_game import *
 from utils import *
 import numpy as np
 import matplotlib.pyplot as plt

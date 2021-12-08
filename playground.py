@@ -1,83 +1,58 @@
 import numpy as np
-from cvxopt.modeling import op
-from cvxopt.modeling import variable
-from cvxopt.solvers import options
-options['show_progress'] = False
+from utils import *
+from prisoner_game import *
 
-# chicken
-# p1 = np.array([[0., -1.],
-#                [1., -5.]])
-#
-# p2 = np.array([[0., 1.],
-#                [-1., -5.]])
+p1_q_values = np.load('p1_policy.npy', allow_pickle=True)
+p2_q_values = np.load('p2_policy.npy', allow_pickle=True)
 
-# coco-q banana
-p1 = np.array([[2., 0.],
-               [2., 4.]])
-p1_actions = ['reach', 'climb']
+p1_start = 3
+p2_start = 5
 
-p2 = np.array([[0., 0.],
-               [0., 0.]])
-p2_actions = ['don\'t boost', 'boost']
+p1 = p1_q_values[p1_start][p2_start]
+p2 = p2_q_values[p1_start][p2_start]
 
-def solve(player, actions):
-    v = variable()
-    t = variable(1, actions[0])
-    s = variable(1, actions[1])
+p = p1 + p2
 
-    constraints = list()
+p1_action_coco, p2_action_coco = np.unravel_index(p.argmax(), p.shape)
 
-    constraints.append(t + s == 1.0)
+print(action_space[p1_action_coco], action_space[p2_action_coco])
 
-    constraints.append(t >= 0)
-    constraints.append(s >= 0)
+coco = get_coco_value(p1, p2)
+p1_side_payment = coco - p1[p1_action_coco][p2_action_coco]
 
-    constraint = float(player[0][0]) * t + float(player[0][1]) * s >= v
-    constraints.append(constraint)
+print(p1)
+print(p2)
+print(p)
 
-    constraint = float(player[1][0]) * t + float(player[1][1]) * s >= v
-    constraints.append(constraint)
+p1_total = p1[p1_action_coco][p2_action_coco] + p1_side_payment
+p2_total = p2[p1_action_coco][p2_action_coco] - p1_total
 
-    lp = op(-v, constraints)
-    lp.solve()
+print('coco', coco)
+print(f'p1 side payment {p1_side_payment} and reward {p1_total}')
+print(f'p2 reward {p2_total}')
 
-    # print(v.value)
-    # print(v.value[0])
-    # print(s.name, s.value)
-    # print(t.name, t.value)
-    # print("greater", t.value[0] > s.value[0])
-    # print('----------------------------')
+# print((p1 + coco) + (p2 - coco))
 
-    if t.value[0] > s.value[0]:
-        return t.name, 0
-    else:
-        return s.name, 1
+first_p1 = p1
+first_p2 = p2
 
-def maximax(p1_values, p2_values):
+print('--------------')
+p1_q_values = np.load('p1_normal_policy.npy', allow_pickle=True)
+p2_q_values = np.load('p2_normal_policy.npy', allow_pickle=True)
+p1 = p1_q_values[p1_start][p2_start]
+p2 = p2_q_values[p1_start][p2_start]
+p1_coco = get_coco_value(p1, p2)
+p2_coco = get_coco_value(p2, p1)
 
-    return p1_values.max(), p2_values.max()
+print(p1)
+print(p2)
+
+print(f'p1 coco {p1_coco}')
+print(f'p2_coco {p2_coco}')
+print(f'p1_coco + p2_coco = {p1_coco + p2_coco}')
+print(f'max max U + Ubar {(p1 + p2).max()}')
 
 
-p1_action, p2_index = solve(p1, p1_actions)
-p2_action, p1_index = solve(p2, p2_actions)
+print(p1 + p2)
 
-p1_mini_max_value = p1[p1_index][p2_index]
-p2_mini_max_value = p2[p1_index][p2_index]
-
-# print("Player 1 value:", p1[p1_action][p2_action])
-# print("Player 2 value:", p2[p1_action][p2_action])
-print("Player 1 value:", p1_mini_max_value, p1_action, p1_index)
-print("Player 2 value:", p2_mini_max_value, p2_action, p2_index)
-
-p1_maxi_max_value, p2_maxi_max_value = maximax(p1, p2)
-
-print('Player 1 max:', p1_maxi_max_value)
-print('Player 2 max:', p2_maxi_max_value)
-
-p1_coco_value = ((p1_maxi_max_value + p2_maxi_max_value) / 2) + ((p1_mini_max_value - p2_mini_max_value) / 2)
-p2_coco_value = ((p2_maxi_max_value + p1_maxi_max_value) / 2) + ((p2_mini_max_value - p1_mini_max_value) / 2)
-
-print("Player 1 Coco Value", p1_coco_value)
-print("Player 2 Coco Value", p2_coco_value)
-
-print('done')
+print(((p1 + p2)/2).max() + maxmin_value(p1, p2) + ((p2 + p1)/2).max() + maxmin_value(p2, p1))
