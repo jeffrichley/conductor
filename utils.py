@@ -179,20 +179,51 @@ def minimax_value(vals):
 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
     # p1_probs = np.array([0.5, 0.25, 0.25])
     # p2_probs = np.array([0.5, 0.25, 0.25])
     # answer = (np.expand_dims(p1_probs, axis=0) * np.expand_dims(p2_probs, axis=1))
     # print(answer)
 
-    # x = np.array([[1., 2., 3.],
-    #               [2., 3., 1.],
-    #               [3., 1., 2.]])
-    #
-    # print(minimax(x))
+    x = np.array([[-1., -1., 4.],
+                  [2., 3., 1.],
+                  [3., 1., 2.]])
 
-    # first = -minimax(x)
-    # second = minimax(-x)
-    # print(first, second)
+    y = np.array([[3., -1., 4.],
+                  [2., -4., 5.],
+                  [3., 5., 2.]])
+
+    print(minimax_value(x))
+    print(minimax_value(y))
+
+    coco_1 = get_coco_value(x, y)
+    coco_2 = get_coco_value(y, x)
+
+    maxmax_1 = ((x + y)/2).max()
+    minmax_1 = minimax_value((x - y)/2)
+    maxmax_2 = ((y + x)/2).max()
+    minmax_2 = minimax_value((y-x)/2)
+
+    maxmax = (x+y).max()
+    minmax_diff = minimax_value(x - y)
+
+    print('maxmax_1', maxmax_1)
+    print('minmax_1', minmax_1)
+    print('coco_1', coco_1)
+    print('maxmax_2', maxmax_2)
+    print('minmax_2', minmax_2)
+    print('coco_2', coco_2)
+    print('maxmax', maxmax)
+
+    from math import isclose
+    check1 = isclose(maxmax_1 + minmax_1 + maxmax_2 + minmax_2, coco_1 + coco_2) and isclose(maxmax, coco_1 + coco_2)
+    print('check 1', check1, maxmax_1 + minmax_1 + maxmax_2 + minmax_2 , coco_1 + coco_2, maxmax)
+
+    check2 = isclose((maxmax_1 + minmax_1) - (maxmax_2 + minmax_2), coco_1 - coco_2) and isclose(coco_1 - coco_2, minmax_diff)
+    print('check 2', check2, (maxmax_1 + minmax_1) - (maxmax_2 + minmax_2), coco_1 - coco_2, minmax_diff)
+
+    first = -minimax_value(x)
+    second = minimax_value(-x)
+    print('check 3', isclose(first, second), first, second)
 
