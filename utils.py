@@ -1,5 +1,5 @@
 import math
-
+from prisoner_game import *
 from cvxopt import matrix, solvers
 from cvxopt.modeling import op
 from cvxopt.modeling import variable
@@ -8,8 +8,6 @@ options['show_progress'] = False
 solvers.options['show_progress'] = False # disable solver output
 solvers.options['glpk'] = {'msg_lev': 'GLP_MSG_OFF'}  # cvxopt 1.1.8
 solvers.options['LPX_K_MSGLEV'] = 0  # previous versions
-
-from prisoner_game import *
 
 
 def decay_alpha(t, alpha):
@@ -51,13 +49,6 @@ def solve_depricated(player, actions):
     lp = op(-v, constraints)
     lp.solve()
 
-    # print(v.value)
-    # print(v.value[0])
-    # print(s.name, s.value)
-    # print(t.name, t.value)
-    # print("greater", t.value[0] > s.value[0])
-    # print('----------------------------')
-
     if right.value[0] >= left.value[0] and right.value[0] >= stick.value[0]:
         return right.name, 0
     elif left.value[0] >= stick.value[0]:
@@ -98,8 +89,6 @@ def compute_minimax_lp(player, actions):
     lp = op(-v, constraints)
     lp.solve()
 
-    # for var in variables:
-    #     print(var.name, var.value[0])
     return [x.value[0] for x in variables]
 
 
@@ -108,18 +97,10 @@ def get_coco_value(player1_vals, player2_vals):
     plus = player1_vals + player2_vals
     max_value = (plus / 2).max()
 
-    # minus = (player1_vals - player2_vals) / 2
-
-    # p1_probs_old = compute_minimax_lp(minus, action_space)
-    # p1_probs = maxmin(minus)
-    # minimax_probability_value = (minus.min(axis=1) * p1_probs).sum()
-    # minimax_probability_value = np.multiply(minus.min(axis=1), np.squeeze(np.array(p1_probs))).sum()
-
-
-
-    minimax_probability_value = maxmin_value(player1_vals, player2_vals)
-
-
+    # TODO: this is using maximin? Need to verify which version this is computing
+    # minimax_probability_value = maxmin_value(player1_vals, player2_vals)
+    minus = player1_vals - player2_vals
+    minimax_probability_value = minimax_value(minus/2)
 
     coco_value = max_value + minimax_probability_value
 
@@ -157,6 +138,8 @@ def maxmin(A, solver="glpk"):
     b = matrix(b)
     sol = solvers.lp(c=c, G=G, h=h, A=A, b=b, solver=solver)
 
+    # TODO: why does it crash sometimes?  I've noticed there are times when all values are negative.
+    # This may cause the LP to become unbounded.
     if sol['x'] is None:
         print(original_A)
 
@@ -164,12 +147,15 @@ def maxmin(A, solver="glpk"):
 
     return probs
 
-def maxmin_value(player1_vals, player2_vals, solver="glpk"):
+def maxmin_value_depricated(player1_vals, player2_vals, solver="glpk"):
     minus = (player1_vals - player2_vals) / 2
     p1_probs = maxmin(minus)
-    # minimax_probability_value = np.multiply(minus.min(axis=1), np.squeeze(np.array(p1_probs))).sum()
 
     p2_probs = maxmin(minus.transpose())
+
+    # following line takes both three dimentional probabilities and multiplies them together to get a 3x3
+    # representation of the full join action space probabilities.  It then multiplies those probabilities
+    # with the values previously calculated and sums these values for the answer.
 
     # p1_probs = np.array([0.5, 0.25, 0.25])
     # p2_probs = np.array([0.5, 0.25, 0.25])
@@ -177,3 +163,36 @@ def maxmin_value(player1_vals, player2_vals, solver="glpk"):
     value = (minus * (np.expand_dims(p1_probs, axis=0) * np.expand_dims(p2_probs, axis=1))).sum()
 
     return value
+
+
+def minimax_value(vals):
+    # probs = maxmin(x)
+    # intermediate = np.multiply(vals, np.array(probs))
+    # maxes = intermediate.sum(axis=0)
+    # answer = maxes.min()
+    # return minimum
+
+    answer = np.multiply(vals, np.array(maxmin(vals))).sum(axis=0).min()
+
+    return answer
+
+
+
+
+# if __name__ == '__main__':
+
+    # p1_probs = np.array([0.5, 0.25, 0.25])
+    # p2_probs = np.array([0.5, 0.25, 0.25])
+    # answer = (np.expand_dims(p1_probs, axis=0) * np.expand_dims(p2_probs, axis=1))
+    # print(answer)
+
+    # x = np.array([[1., 2., 3.],
+    #               [2., 3., 1.],
+    #               [3., 1., 2.]])
+    #
+    # print(minimax(x))
+
+    # first = -minimax(x)
+    # second = minimax(-x)
+    # print(first, second)
+
