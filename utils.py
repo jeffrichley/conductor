@@ -1,4 +1,5 @@
 import math
+import itertools
 from prisoner_game import *
 from cvxopt import matrix, solvers
 from cvxopt.modeling import op
@@ -106,6 +107,23 @@ def get_coco_value(player1_vals, player2_vals):
 
     return coco_value
 
+
+def get_coco_values(player1_vals, player2_vals):
+
+    plus = player1_vals + player2_vals
+    max_value = (plus / 2).max()
+
+    # TODO: this is using maximin? Need to verify which version this is computing
+    # minimax_probability_value = maxmin_value(player1_vals, player2_vals)
+    minus = player1_vals - player2_vals
+    minimax_probability_value = minimax_value(minus/2)
+
+    p1_coco_value = max_value + minimax_probability_value
+    p2_coco_value = max_value - minimax_probability_value
+
+    return p1_coco_value, p2_coco_value
+
+
 def maxmin(A, solver="glpk"):
 
     original_A = A.copy()
@@ -166,17 +184,93 @@ def maxmin_value_depricated(player1_vals, player2_vals, solver="glpk"):
 
 
 def minimax_value(vals):
+    # first try
     # probs = maxmin(x)
     # intermediate = np.multiply(vals, np.array(probs))
     # maxes = intermediate.sum(axis=0)
     # answer = maxes.min()
     # return minimum
 
-    answer = np.multiply(vals, np.array(maxmin(vals))).sum(axis=0).min()
+    # second try
+    # answer = np.multiply(vals, np.array(maxmin(vals))).sum(axis=0).min()
+
+    # third try
+    mm1 = maxmin(vals)
+    mm2 = maxmin(-vals.transpose())
+    probs = np.outer(mm1, mm2)
+    tots = vals * probs
+    answer = tots.sum()
 
     return answer
 
 
+def get_rewards_for_state_joint_action(current_state, p1_action, p2_action):
+    state_prime = game_step(current_state, p1_action, p2_action)
+    p1_reward, p2_reward = get_rewards(state_prime)
+
+    # TODO: why is their (1, 5) left left == 198?  Mine is 200.
+    # p1_reward -= 1
+    # p2_reward -= 1
+
+    # if it is a non-terminal state and they didn't stand still, we deduct a point
+    # TODO: not sure if they should end up with 100 or 99 when going into the goal
+    if p1_reward == 0 and p1_action != 2:
+        p1_reward = -1
+    # # if p1_action != 2:
+    # #     p1_reward += -1
+
+    if p2_reward == 0 and p2_action != 2:
+        p2_reward = -1
+    # # if p2_action != 2:
+    # #     p2_reward += -1
+
+    return p1_reward, p2_reward
+
+
+def get_payoff_matrices_for_state(current_state, p1_q_values, p2_q_values):
+    # initialize the matrices
+    p1_payoff = np.zeros((3, 3))
+    p2_payoff = np.zeros((3, 3))
+
+    # get all joint action pairs
+    all_joint_action_pairs = list(itertools.product([0, 1, 2], [0, 1, 2]))
+
+    # TODO: I'm not sure if we need to rotate the p2 payoff matrice but I don't think so
+    for p1_action, p2_action in all_joint_action_pairs:
+
+        # get the reward we would have received had we taken this action
+        if is_terminal_state(current_state):
+            q_p1 = 0
+            q_p2 = 0
+        else:
+            p1_reward, p2_reward = get_rewards_for_state_joint_action(current_state, p1_action, p2_action)
+            state_prime = game_step(current_state, p1_action, p2_action)
+            # p1_reward, p2_reward = get_rewards(state_prime)
+            #
+            # # if it is a non-terminal state and they didn't stand still, we deduct a point
+            # if p1_reward == 0 and p1_action != 2:
+            #     p1_reward = -1
+            #
+            # if p2_reward == 0 and p2_action != 2:
+            #     p2_reward = -1
+
+            # get the next state's value
+            p1_state_prime_q_value = p1_q_values[state_prime]
+            p2_state_prime_q_value = p2_q_values[state_prime]
+
+            # calculate this cells value
+            # value = reward + (next state's q value * discount)
+            discount = 1.0
+            q_p1 = p1_reward + (p1_state_prime_q_value * discount)
+            q_p2 = p2_reward + (p2_state_prime_q_value * discount)
+            # q_p1 = p1_reward + (p1_state_prime_q_value)
+            # q_p2 = p2_reward + (p2_state_prime_q_value)
+
+        # set the payoff matrices' cell values
+        p1_payoff[p1_action][p2_action] = q_p1
+        p2_payoff[p1_action][p2_action] = q_p2
+
+    return p1_payoff, p2_payoff
 
 
 if __name__ == '__main__':

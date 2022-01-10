@@ -63,19 +63,20 @@ for t in tqdm(range(steps), mininterval=5):
         p1_prime = p1_q_values[state_prime]
         p2_prime = p2_q_values[state_prime]
 
-        p1_coco_value = get_coco_value(p1_prime, p2_prime)
-        p2_coco_value = get_coco_value(p2_prime, p1_prime)
+        # p1_coco_value = get_coco_value(p1_prime, p2_prime)
+        # p2_coco_value = get_coco_value(p2_prime, p1_prime)
+        p1_coco_value, p2_coco_value = get_coco_values(p1_prime, p2_prime.transpose())
 
         # cost of each step is -1 except stick
-        # if p1_action_sim != 2:
-        #     p1_reward -= 1
-        #
-        # if p2_action_sim != 2:
-        #     p2_reward -= 1
+        if p1_action_sim != 2:
+            p1_reward -= 1
+
+        if p2_action_sim != 2:
+            p2_reward -= 1
 
         # for now we will have all moves get a reward of -1
-        p1_reward -= 1
-        p2_reward -= 1
+        # p1_reward -= 1
+        # p2_reward -= 1
 
         # update the COCO-Q values
         p1_q_values[current_state][p1_action_sim][p2_action_sim] = q_s_a_1 + alpha * (p1_reward + gamma * p1_coco_value - q_s_a_1)
@@ -126,7 +127,7 @@ np.save('p2_policy', p2_q_values, allow_pickle=True)
 np.save('p1_normal_policy', p1_normal_q_values, allow_pickle=True)
 np.save('p2_normal_policy', p2_normal_q_values, allow_pickle=True)
 
-for i in range(3, -1, -1):
+for i in range(3, 0, -1):
     print((i, 5))
     print(p1_q_values[(i, 5)])
     print(p2_q_values[(i, 5)])

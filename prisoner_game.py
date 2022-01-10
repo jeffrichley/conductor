@@ -8,9 +8,11 @@ min_epsilon = 0.001
 max_epsilon = 0.5
 epsilon_decay = 0.00008
 
+# num_sessions = 100000000
 # num_sessions = 10000000
 # num_sessions = 1000000
 num_sessions = 250000
+
 # num_sessions = 100000
 # num_sessions = 25000
 # num_sessions = 50000
