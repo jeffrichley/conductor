@@ -1,52 +1,20 @@
 import numpy as np
 from utils import *
 from prisoner_game import *
+from numpy import unravel_index
 
-p1_q_values = np.load('p1_policy.npy', allow_pickle=True)
-p2_q_values = np.load('p2_policy.npy', allow_pickle=True)
+values = np.array( [[ 99.,      99.,     100.    ],
+ [192.04,    99.,     194.03  ],
+ [194.03,   100.,     192.0897]])
 
-p1_start = 3
-p2_start = 5
+counts = {}
 
-p1 = p1_q_values[p1_start][p2_start]
-p2 = p2_q_values[p1_start][p2_start].transpose()
+for _ in range(1000000):
+    action = unravel_index(values.argmax(), values.shape)
 
-p = p1 + p2
+    if action in counts:
+        counts[action] = counts[action] + 1
+    else:
+        counts[action] = 1
 
-
-
-
-p1_probs = np.array(maxmin(p1))
-p1_value = minimax_value(p1)
-
-p2_probs = np.array(maxmin(p2))
-p2_value = minimax_value(p2)
-
-print('p1')
-print(p1)
-print('p1_probs\n', p1_probs)
-print('p1_value', p1_value)
-
-print()
-
-print('p2')
-print(p2)
-print('p2_probs\n', p2_probs)
-print('p2_value', p2_value)
-
-print()
-
-plus = p1 + p2_q_values[p1_start][p2_start]
-# plus = p1 + p2
-plus_probs = np.array(maxmin(plus))
-maxes = np.multiply(plus, np.array(maxmin(plus))).sum(axis=0)
-print(plus)
-print(plus_probs)
-print(maxes)
-
-coco = get_coco_value(p1, p2)
-print(coco)
-
-# print(np.multiply(plus, np.array(maxmin(plus))))
-
-# print('done')
+print(counts)

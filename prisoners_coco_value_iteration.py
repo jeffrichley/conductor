@@ -98,9 +98,9 @@ while not is_terminal_state(current_state):
     prev_state = current_state
     current_state = game_step(current_state, p1_action, p2_action)
 
-    print(f'{prev_state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {current_state}')
-    print(f'\tBest individual payouts would be: p1 {p1_best_reward} p2 {p2_best_reward}')
-    # print(combined_expectations[p1_action, p2_action])
+    print(f'*{prev_state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {current_state}')
+    # print(f'\tBest individual payouts would be: p1 {p1_best_reward} p2 {p2_best_reward}')
+    print(combined_expectations)
     # print('p1')
     # print(p1_expectations)
     # print('p2')

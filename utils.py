@@ -17,6 +17,10 @@ def decay_alpha(t, alpha):
 
 
 def decay_epsilon(t, epsilon):
+    # epsilon_decay = 0.99997
+    min_epsilon = 0.05
+    # max_epsilon = 0.99
+
     epsilon = min_epsilon + (max_epsilon - min_epsilon) * math.exp(-epsilon_decay * t)
     if epsilon < min_epsilon:
         epsilon = min_epsilon

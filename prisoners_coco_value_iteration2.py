@@ -29,9 +29,6 @@ while max_change > 0.01:
 
                 state_prime = game_step(state, p1_joint_action, p2_joint_action)
 
-                # p1_next_state_value = p1_q_values_final[state_prime].max()
-                # p2_next_state_value = p2_q_values_final[state_prime].max()
-
                 # 1. build up the payoff matrix of this state
                 p1_payoff = p1_q_values_final[state_prime]
                 p2_payoff = p2_q_values_final[state_prime]
@@ -41,18 +38,13 @@ while max_change > 0.01:
 
                 # 3. calculate the minimax value for each player
                 p1_minimax_value = minimax_value((p1_payoff - p2_payoff) / 2)
-                # TODO: do we actually need to calculate this?  it may always be the negative of
-                #       each other because it is a zero sum game?
                 p2_minimax_value = minimax_value((p2_payoff.transpose() - p1_payoff.transpose()) / 2)
 
                 # 4. calculate the coco value for each player
                 p1_coco_value = maxmax_value + p1_minimax_value
                 p2_coco_value = maxmax_value + p2_minimax_value
 
-
                 discount = 0.99
-                # p1_q_values_final[state][p1_joint_action][p2_joint_action] = p1_reward + discount * p1_next_state_value
-                # p2_q_values_final[state][p1_joint_action][p2_joint_action] = p2_reward + discount * p2_next_state_value
                 p1_q_values_final[state][p1_joint_action][p2_joint_action] = p1_reward + discount * p1_coco_value
                 p2_q_values_final[state][p1_joint_action][p2_joint_action] = p2_reward + discount * p2_coco_value
 
@@ -61,11 +53,6 @@ while max_change > 0.01:
     last_p1_values = p1_q_values_final.copy()
     last_p2_values = p2_q_values_final.copy()
 
-    # print(max_change)
-
-# print(p1_q_values_final[(3, 5)])
-# print(p2_q_values_final[(3, 5)])
-# print(p1_q_values_final[(3, 5)] + p2_q_values_final[(3, 5)])
 
 state = (3, 5)
 print('state     actions       resulting state')
@@ -74,7 +61,8 @@ while not is_terminal_state(state):
     combined = p1_q_values_final[state] + p2_q_values_final[state]
     p1_action, p2_action = unravel_index(combined.argmax(), combined.shape)
     next_state = game_step(state, p1_action, p2_action)
-    # print(state, action_space[p1_action], action_space[p2_action], next_state)
-    print(f'{state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {next_state}')
+
+    print(f'+{state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {next_state}')
+    print(combined)
 
     state = next_state

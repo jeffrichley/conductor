@@ -1,4 +1,5 @@
 from prisoner_game import *
+from utils import *
 
 
 def test_random_state():
@@ -102,3 +103,9 @@ def test_get_rewards():
     assert (get_rewards((4, 8)) == (100, 100))
 
 
+def test_one_five_rewards():
+
+    p1, p2 = get_rewards_for_state_joint_action((1, 5), 1, 1)
+
+    assert(p1 == 100)
+    assert(p2 == 100)
