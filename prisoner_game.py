@@ -1,29 +1,19 @@
 import numpy as np
 
-start_state = (3, 5)
+start_state = (9, 11)
 action_space = ['right', 'left', 'stick']
+num_actions = len(action_space)
 
-epsilon = 0.5
-min_epsilon = 0.001
-max_epsilon = 0.5
-epsilon_decay = 0.00008
-
-# num_sessions = 100000000
-# num_sessions = 10000000
-# num_sessions = 1000000
-num_sessions = 250000
-
-# num_sessions = 100000
-# num_sessions = 25000
-# num_sessions = 50000
-# num_sessions = 10000
+num_sessions = 10000
 num_plays = 500
 
-# gamma = 0.9
-# gamma = 0.99
-gamma = 0.5
-# gamma = 0.95
-# gamma = 1.0
+alpha = 0.25
+alpha_decay = 0.99995
+gamma = 0.99
+epsilon_decay = 0.99999
+min_epsilon = 0.05
+max_epsilon = 0.99
+epsilon = 0.99
 
 
 def random_state():

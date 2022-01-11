@@ -1,0 +1,1 @@
+Ran COCO-Q Q-Learning 1000 times with the results of left: 504 (50.4%)  right: 496 (49.6%)  bad: 0 (0.0%)

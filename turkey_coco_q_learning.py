@@ -6,14 +6,14 @@ from numpy import unravel_index
 import itertools
 
 # This is where we will keep our COCO-Q values for learning
-p1_q_values_final = np.zeros((9, 9, 3, 3))
-p2_q_values_final = np.zeros((9, 9, 3, 3))
+p1_q_values_final = np.zeros((12, 12, 5, 5))
+p2_q_values_final = np.zeros((12, 12, 5, 5))
 
 last_p1_values = p1_q_values_final.copy()
 last_p2_values = p2_q_values_final.copy()
 
-all_states = list(itertools.product([0, 1, 2, 3, 4], [4, 5, 6, 7, 8]))
-all_joint_action_pairs = list(itertools.product([0, 1, 2], [0, 1, 2]))
+# all_states = list(itertools.product([0, 1, 2, 3, 4], [4, 5, 6, 7, 8]))
+all_joint_action_pairs = list(itertools.product([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]))
 
 max_change = 10000
 min_change = 10000
@@ -21,7 +21,7 @@ count = 0
 changes = np.zeros(1000)
 
 
-current_state = (3, 5)
+current_state = start_state
 previous_state = current_state
 
 # main loop for training
@@ -39,7 +39,7 @@ while count < num_sessions:
     # if we finished the game last time, lets go to a random place to start
     if is_terminal_state(current_state):
         # current_state = random_state()
-        current_state = (3, 5)
+        current_state = start_state
     else:
 
         # what kind of rewards to we get for the state and joint action?
@@ -90,16 +90,17 @@ while count < num_sessions:
     if count % 1000 == 0 and count != 0:
         print(f'Round {count} {epsilon} {alpha} {np.mean(changes)} {max_change}')
 
-state = (3, 5)
-print('state     actions       resulting state')
-print(f'start                   {state}')
-while not is_terminal_state(state):
+for i in range(10):
+    state = start_state
+    print('state     actions       resulting state')
+    print(f'start                   {state}')
+    while not is_terminal_state(state):
 
-    combined = p1_q_values_final[state] + p2_q_values_final[state]
-    p1_action, p2_action = unravel_index(combined.argmax(), combined.shape)
-    next_state = game_step(state, p1_action, p2_action)
+        combined = p1_q_values_final[state] + p2_q_values_final[state]
+        p1_action, p2_action = unravel_index(combined.argmax(), combined.shape)
+        next_state = game_step(state, p1_action, p2_action)
 
-    print(f'\t{state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {next_state}')
+        print(f'\t{state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {next_state}')
 
-    state = next_state
+        state = next_state
 

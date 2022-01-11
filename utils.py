@@ -1,6 +1,9 @@
 import math
 import itertools
-from prisoner_game import *
+
+# from prisoner_game import *
+from turkey_game import *
+
 from cvxopt import matrix, solvers
 from cvxopt.modeling import op
 from cvxopt.modeling import variable
