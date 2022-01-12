@@ -26,7 +26,8 @@ collect = False
 last_p1_values = p1_q_values.copy()
 last_p2_values = p2_q_values.copy()
 
-steps = num_sessions
+# steps = num_sessions
+steps = 100000
 
 # main loop for training
 for t in tqdm(range(steps), mininterval=5):
@@ -65,7 +66,8 @@ for t in tqdm(range(steps), mininterval=5):
 
         # p1_coco_value = get_coco_value(p1_prime, p2_prime)
         # p2_coco_value = get_coco_value(p2_prime, p1_prime)
-        p1_coco_value, p2_coco_value = get_coco_values(p1_prime, p2_prime.transpose())
+        # p1_coco_value, p2_coco_value = get_coco_values(p1_prime, p2_prime.transpose())
+        p1_coco_value, p2_coco_value = get_coco_values(p1_prime, p2_prime)
 
         # cost of each step is -1 except stick
         if p1_action_sim != 2:
@@ -79,6 +81,8 @@ for t in tqdm(range(steps), mininterval=5):
         # p2_reward -= 1
 
         # update the COCO-Q values
+        gamma = 1.0
+        alpha = 0.1
         p1_q_values[current_state][p1_action_sim][p2_action_sim] = q_s_a_1 + alpha * (p1_reward + gamma * p1_coco_value - q_s_a_1)
         p2_q_values[current_state][p1_action_sim][p2_action_sim] = q_s_a_2 + alpha * (p2_reward + gamma * p2_coco_value - q_s_a_2)
 
@@ -135,3 +139,4 @@ for i in range(3, 0, -1):
     print(get_coco_value(p1_q_values[(i, 5)], p2_q_values[(i, 5)]))
     print('------------------------')
 
+play_game(p1_q_values, p2_q_values, (3, 5), max_steps=6)

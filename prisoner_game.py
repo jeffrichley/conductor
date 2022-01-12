@@ -1,6 +1,6 @@
 import numpy as np
 
-start_state = (9, 11)
+start_state = (3, 5)
 action_space = ['right', 'left', 'stick']
 num_actions = len(action_space)
 

@@ -1,8 +1,9 @@
 import math
 import itertools
+from numpy import unravel_index
 
-# from prisoner_game import *
-from turkey_game import *
+from prisoner_game import *
+# from turkey_game import *
 
 from cvxopt import matrix, solvers
 from cvxopt.modeling import op
@@ -278,6 +279,30 @@ def get_payoff_matrices_for_state(current_state, p1_q_values, p2_q_values):
         p2_payoff[p1_action][p2_action] = q_p2
 
     return p1_payoff, p2_payoff
+
+
+def play_game(p1_policy, p2_policy, start_position, max_steps=10):
+
+    step_count = 0
+
+    state = start_position
+
+    print('state     actions       resulting state')
+    print(f'start                   {state}')
+    while not is_terminal_state(state):
+
+        step_count += 1
+
+        combined = p1_policy[state] + p2_policy[state]
+        p1_action, p2_action = unravel_index(combined.argmax(), combined.shape)
+        next_state = game_step(state, p1_action, p2_action)
+
+        print(f'\t{state} -> {action_space[p1_action]} {action_space[p2_action]:5} -> {next_state}')
+
+        state = next_state
+
+        if step_count >= max_steps:
+            break
 
 
 if __name__ == '__main__':
