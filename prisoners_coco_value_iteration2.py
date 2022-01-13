@@ -66,3 +66,8 @@ while not is_terminal_state(state):
     print(combined)
 
     state = next_state
+
+
+
+np.save('p1_policy', p1_q_values_final, allow_pickle=True)
+np.save('p2_policy', p2_q_values_final, allow_pickle=True)
