@@ -14,4 +14,4 @@ class EasyGame(Game):
 
         for x in range(4):
             for y in range(4):
-                self._board.set_tile(0, y, x, BaseTile())
+                self._board.add_tile(0, y, x, BaseTile())
