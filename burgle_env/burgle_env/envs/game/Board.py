@@ -12,6 +12,9 @@ class Board:
         # add the tile to the list of tiles, indexed by its location in the game
         self._tiles[(floor, y, x)] = tile
 
+        # tell the tile where it lives
+        tile.location = (floor, y, x)
+
         # connect this tile with its neighbors
         # north
         if y - 1 >= 0 and (floor, y - 1, x) in self._tiles:

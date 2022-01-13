@@ -71,4 +71,13 @@ def test_adding_walls():
     assert t5.east_wall
 
 
+def test_setting_tile_location():
 
+    board = Board()
+    t1 = BaseTile()
+
+    assert(t1.location is None)
+
+    board.add_tile(1, 2, 2, t1)
+
+    assert(t1.location == (1, 2, 2))
