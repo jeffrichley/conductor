@@ -46,6 +46,10 @@ class BaseTile:
         elif action == 3:
             answer = not self.west_wall
 
+        # check stick
+        elif action == 4:
+            answer = True
+
         return answer
 
     def get_tile_short_hand(self):
@@ -63,8 +67,10 @@ class Vault(BaseTile):
 
 class Stairs(BaseTile):
 
-    def __init__(self):
+    def __init__(self, direction):
         super().__init__()
+
+        self.direction = direction
 
     def get_tile_short_hand(self):
         return 'S'

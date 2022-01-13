@@ -5,14 +5,58 @@ class Game:
 
     def __init__(self, num_floors=1, num_players=1):
 
+        self.action_space = ['north', 'east', 'south', 'west', 'stick', 'crack safe', 'use stairs']
+
         self._board = Board()
         self.num_floors = num_floors
 
+        # player information
         self.num_players = num_players
         self.players = [(-1, -1) for _ in range(num_players)]
 
+        # valut information
+        self.vault_tile = None
+        self.vault_opened = False
+        self.vault_combination = []
+        self.vault_combination_cracked = []
+
     def set_player_location(self, player_num, location):
         self.players[player_num] = location
+
+    def take_action(self, player_num, action):
+
+        # move the player
+        if action <= 4:
+            self.move_player(player_num, action)
+
+        # crack the safe
+        elif action == 5:
+            self.crack_safe(player_num)
+
+        # use the stairs
+        elif action == 6:
+            # TODO: we need to extend this to check if the tile above or below are stairs going in the correct direction
+            player_next_location = list(self.players[player_num])
+            tile = self._board.get_tile(player_next_location[0], player_next_location[1], player_next_location[2])
+
+            if isinstance(tile, Stairs):
+                if tile.direction == 'up':
+                    player_next_location[0] += 1
+                elif tile.direction == 'down':
+                    player_next_location[0] += 2
+
+                self.players[player_num] = tuple(player_next_location)
+
+        # we don't know this action
+        else:
+            raise Exception(f'Unknown action {action} for player {player_num}')
+
+    def crack_safe(self, player_num):
+        # roll the dice
+        roll = random.randint(1, 6)
+
+        # mark the roll as cracked
+        self.vault_combination_cracked[roll] = True
 
     def move_player(self, player_num, action):
 
@@ -38,6 +82,21 @@ class Game:
 
         self.players[player_num] = tuple(next_location)
 
+    def set_vault_information(self):
+
+        self.vault_combination_cracked = [True if x > 0 else True for x in range(7)]
+
+        for direction in ['north_tile', 'south_tile', 'east_tile', 'west_tile']:
+            current_tile = getattr(self.vault_tile, direction)
+            while current_tile is not None:
+                if current_tile.vault_number not in self.vault_combination:
+                    self.vault_combination.append(current_tile.vault_number)
+                    self.vault_combination_cracked[current_tile.vault_number] = False
+
+
+                current_tile = getattr(current_tile, direction)
+
+        self.vault_combination.sort()
 
     def __repr__(self):
 
@@ -87,8 +146,9 @@ class EasyGame(Game):
             for y in range(4):
                 if y == 0 and x == 3:
                     tile = Vault()
+                    self.vault_tile = tile
                 elif y == 3 and x == 0:
-                    tile = Stairs()
+                    tile = Stairs('up')
                 else:
                     tile = BaseTile()
 
@@ -111,5 +171,7 @@ class EasyGame(Game):
         for player_num in range(self.num_players):
             player_location = (0, random.randint(0, 3), random.randint(0, 3))
             self.set_player_location(player_num, player_location)
+
+        self.set_vault_information()
 
 
