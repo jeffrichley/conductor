@@ -14,6 +14,31 @@ class Game:
     def set_player_location(self, player_num, location):
         self.players[player_num] = location
 
+    def move_player(self, player_num, action):
+
+        next_location = list(self.players[player_num])
+        current_tile = self._board.get_tile(next_location[0], next_location[1], next_location[2])
+
+        if current_tile.can_take_action(action):
+            # moving north
+            if action == 0:
+                next_location[1] -= 1
+
+            # moving east
+            elif action == 1:
+                next_location[2] += 1
+
+            # moving south
+            elif action == 2:
+                next_location[1] += 1
+
+            # moving west
+            elif action == 3:
+                next_location[2] -= 1
+
+        self.players[player_num] = tuple(next_location)
+
+
     def __repr__(self):
 
         answer = ''
