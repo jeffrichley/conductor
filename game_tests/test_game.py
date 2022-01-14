@@ -95,12 +95,24 @@ def test_crack_safe():
 
     original_cracking = game.vault_combination_cracked.copy()
 
+    # we don't have any vault dice, so nothing should change
+    # lets try cracking a bunch of times
+    for _ in range(100):
+        game.take_action(0, 5)
+
+    # make sure something changed
+    assert (game.vault_combination_cracked == original_cracking)
+
+    # add the dice
+    game.num_vault_dice = 6
+
     # lets try cracking a bunch of times
     for _ in range(100):
         game.take_action(0, 5)
 
     # make sure something changed
     assert(game.vault_combination_cracked != original_cracking)
+
 
 def test_going_up_stairs():
 
@@ -119,3 +131,24 @@ def test_going_up_stairs():
 
     assert (game.players[0] == (0, 0, 0))
 
+
+def test_drop_dice():
+
+    game = EasyGame()
+
+    assert(game.num_current_player_turns == 0)
+    assert(game.num_vault_dice == 0)
+
+    game.take_action(0, 7)
+    assert (game.num_current_player_turns == 2)
+    assert (game.num_vault_dice == 1)
+
+    game.num_vault_dice = 0
+    game.num_current_player_turns = 3
+    assert (game.num_current_player_turns == 3)
+    assert (game.num_vault_dice == 0)
+
+    game.num_vault_dice = 0
+    game.num_current_player_turns = 4
+    assert (game.num_current_player_turns == 4)
+    assert (game.num_vault_dice == 0)

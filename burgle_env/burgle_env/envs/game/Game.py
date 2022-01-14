@@ -5,7 +5,7 @@ class Game:
 
     def __init__(self, num_floors=1, num_players=1):
 
-        self.action_space = ['north', 'east', 'south', 'west', 'stick', 'crack safe', 'use stairs']
+        self.action_space = ['north', 'east', 'south', 'west', 'stick', 'crack safe', 'use stairs', 'drop dice']
 
         self._board = Board()
         self.num_floors = num_floors
@@ -14,11 +14,14 @@ class Game:
         self.num_players = num_players
         self.players = [(-1, -1) for _ in range(num_players)]
 
+        self.num_current_player_turns = 0
+
         # valut information
         self.vault_tile = None
         self.vault_opened = False
         self.vault_combination = []
         self.vault_combination_cracked = []
+        self.num_vault_dice = 0
 
     def set_player_location(self, player_num, location):
         self.players[player_num] = location
@@ -39,24 +42,35 @@ class Game:
             player_next_location = list(self.players[player_num])
             tile = self._board.get_tile(player_next_location[0], player_next_location[1], player_next_location[2])
 
+            # if we are on the actual stairs, we always go up
             if isinstance(tile, Stairs):
-                if tile.direction == 'up':
-                    player_next_location[0] += 1
-                elif tile.direction == 'down':
-                    player_next_location[0] += 2
+                player_next_location[0] += 1
 
-                self.players[player_num] = tuple(player_next_location)
+            # TODO: need to add the going down feature
+
+            self.players[player_num] = tuple(player_next_location)
+
+        # drop a die on the safe
+        elif action == 7:
+            self.drop_dice()
 
         # we don't know this action
         else:
             raise Exception(f'Unknown action {action} for player {player_num}')
 
-    def crack_safe(self, player_num):
-        # roll the dice
-        roll = random.randint(1, 6)
+    def drop_dice(self):
 
-        # mark the roll as cracked
-        self.vault_combination_cracked[roll] = True
+        if self.num_current_player_turns < 3 and self.num_vault_dice < 6:
+            self.num_vault_dice += 1
+            self.num_current_player_turns += 2
+
+    def crack_safe(self, player_num):
+        # roll the dice if we have any
+        for _ in range(self.num_vault_dice):
+            roll = random.randint(1, 6)
+
+            # mark the roll as cracked
+            self.vault_combination_cracked[roll] = True
 
     def move_player(self, player_num, action):
 

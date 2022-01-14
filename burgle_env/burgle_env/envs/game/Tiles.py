@@ -70,7 +70,5 @@ class Stairs(BaseTile):
     def __init__(self, direction):
         super().__init__()
 
-        self.direction = direction
-
     def get_tile_short_hand(self):
         return 'S'
