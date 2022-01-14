@@ -14,6 +14,7 @@ class Game:
         self.num_players = num_players
         self.players = [(-1, -1) for _ in range(num_players)]
 
+        self.current_player = 0
         self.num_current_player_turns = 0
 
         # valut information
@@ -28,49 +29,58 @@ class Game:
 
     def take_action(self, player_num, action):
 
-        # move the player
-        if action <= 4:
-            self.move_player(player_num, action)
+        if self.num_current_player_turns < 4:
+            # move the player
+            if action <= 4:
+                self.move_player(player_num, action)
 
-        # crack the safe
-        elif action == 5:
-            self.crack_safe(player_num)
+            # crack the safe
+            elif action == 5:
+                self.crack_safe(player_num)
 
-        # use the stairs
-        elif action == 6:
-            # TODO: we need to extend this to check if the tile above or below are stairs going in the correct direction
-            player_next_location = list(self.players[player_num])
-            tile = self._board.get_tile(player_next_location[0], player_next_location[1], player_next_location[2])
+            # use the stairs
+            elif action == 6:
+                # TODO: we need to extend this to check if the tile above or below are stairs going in the correct direction
+                player_next_location = list(self.players[player_num])
+                tile = self._board.get_tile(player_next_location[0], player_next_location[1], player_next_location[2])
 
-            # if we are on the actual stairs, we always go up
-            if isinstance(tile, Stairs):
-                player_next_location[0] += 1
+                # if we are on the actual stairs, we always go up
+                if isinstance(tile, Stairs):
+                    self.num_current_player_turns += 1
+                    player_next_location[0] += 1
 
-            # TODO: need to add the going down feature
+                # TODO: need to add the going down feature
 
-            self.players[player_num] = tuple(player_next_location)
+                self.players[player_num] = tuple(player_next_location)
 
-        # drop a die on the safe
-        elif action == 7:
-            self.drop_dice()
+            # drop a die on the safe
+            elif action == 7:
+                self.drop_dice(player_num)
 
-        # we don't know this action
-        else:
-            raise Exception(f'Unknown action {action} for player {player_num}')
+            # we don't know this action
+            else:
+                raise Exception(f'Unknown action {action} for player {player_num}')
 
-    def drop_dice(self):
+    def drop_dice(self, player_num):
 
-        if self.num_current_player_turns < 3 and self.num_vault_dice < 6:
+        if self.num_current_player_turns < 3 and self.num_vault_dice < 6 and self.vault_tile.location == self.players[player_num]:
             self.num_vault_dice += 1
             self.num_current_player_turns += 2
 
     def crack_safe(self, player_num):
-        # roll the dice if we have any
-        for _ in range(self.num_vault_dice):
-            roll = random.randint(1, 6)
 
-            # mark the roll as cracked
-            self.vault_combination_cracked[roll] = True
+        # roll the dice if we have any
+        if self.num_vault_dice > 0:
+            self.num_current_player_turns += 1
+
+            for _ in range(self.num_vault_dice):
+                roll = random.randint(1, 6)
+
+                # mark the roll as cracked
+                self.vault_combination_cracked[roll] = True
+
+            if all(self.vault_combination_cracked):
+                self.vault_opened = True
 
     def move_player(self, player_num, action):
 
@@ -78,6 +88,8 @@ class Game:
         current_tile = self._board.get_tile(next_location[0], next_location[1], next_location[2])
 
         if current_tile.can_take_action(action):
+            self.num_current_player_turns += 1
+
             # moving north
             if action == 0:
                 next_location[1] -= 1
@@ -111,6 +123,16 @@ class Game:
                 current_tile = getattr(current_tile, direction)
 
         self.vault_combination.sort()
+
+    def players_won(self):
+        return self.vault_opened
+
+    def next_players_turn(self):
+        self.num_current_player_turns = 0
+        self.current_player += 1
+
+        if self.current_player + 1 > self.num_players:
+            self.current_player = 0
 
     def __repr__(self):
 
@@ -188,4 +210,13 @@ class EasyGame(Game):
 
         self.set_vault_information()
 
+    def players_won(self):
+        won = False
 
+        if super().players_won():
+            won = True
+            for player in self.players:
+                if player[0] != 1:
+                    won = False
+
+        return won
