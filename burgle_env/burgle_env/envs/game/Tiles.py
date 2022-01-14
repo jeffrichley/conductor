@@ -32,19 +32,19 @@ class BaseTile:
 
         # check north
         if action == 0:
-            answer = not self.north_wall
+            answer = not self.north_wall and self.north_tile is not None
 
         # check east
         elif action == 1:
-            answer = not self.east_wall
+            answer = not self.east_wall and self.east_tile is not None
 
         # check south
         elif action == 2:
-            answer = not self.south_wall
+            answer = not self.south_wall and self.south_tile is not None
 
         # check west
         elif action == 3:
-            answer = not self.west_wall
+            answer = not self.west_wall and self.west_tile is not None
 
         # check stick
         elif action == 4:

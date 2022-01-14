@@ -20,7 +20,6 @@ min_change = 10000
 count = 0
 changes = np.zeros(1000)
 
-
 current_state = (3, 5)
 previous_state = current_state
 

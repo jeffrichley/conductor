@@ -12,7 +12,7 @@ class Game:
 
         # player information
         self.num_players = num_players
-        self.players = [(-1, -1) for _ in range(num_players)]
+        self.players = [(-1, -1, -1) for _ in range(num_players)]
 
         self.current_player = 0
         self.num_current_player_turns = 0

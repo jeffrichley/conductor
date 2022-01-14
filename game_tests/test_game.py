@@ -6,12 +6,12 @@ def test_set_player_locations():
     game = Game()
 
     # make sure they start off the board
-    assert(game.players[0] == (-1, -1))
+    assert(game.players[0] == (-1, -1, -1))
 
-    game.set_player_location(0, (1, 1))
+    game.set_player_location(0, (0, 1, 1))
 
     # make sure the player was moved
-    assert (game.players[0] == (1, 1))
+    assert (game.players[0] == (0, 1, 1))
 
 
 def test_player_can_move():
@@ -341,3 +341,28 @@ def test_play_game():
     game.take_action(0, 6)
 
     assert(game.players_won())
+
+
+def test_out_of_bounds_moving():
+
+    game = EasyGame()
+
+    # north
+    game.set_player_location(0, (0, 0, 0))
+    game.take_action(0, 0)
+    assert(game.players[0] == (0, 0, 0))
+
+    # east
+    game.set_player_location(0, (0, 0, 3))
+    game.take_action(0, 1)
+    assert (game.players[0] == (0, 0, 3))
+
+    # south
+    game.set_player_location(0, (0, 3, 3))
+    game.take_action(0, 2)
+    assert (game.players[0] == (0, 3, 3))
+
+    # west
+    game.set_player_location(0, (0, 0, 0))
+    game.take_action(0, 3)
+    assert (game.players[0] == (0, 0, 0))
