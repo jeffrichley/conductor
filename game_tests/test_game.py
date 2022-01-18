@@ -369,14 +369,13 @@ def test_out_of_bounds_moving():
 
 
 def test_players_lost_no_stealth_tokens():
-    game = EasyGame()
+    game = EasyGame(num_players=2)
 
     scoring = BasicScoringObserver(game=game)
 
     scoring.before_action()
 
-    for player in game.players:
-        player.num_stealth_tokens = 0
+    game.players[0].num_stealth_tokens = 0
 
     score, done = scoring.after_action()
 
