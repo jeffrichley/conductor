@@ -26,15 +26,22 @@ class BasicScoringObserver():
         # 1 for cracking a number of the safe
         # -1 for any other actions
         all_players_left = True
+        all_players_no_more_stealth_tokens = True
         for player in self.game.players:
             if player.location[0] == 0:
                 all_players_left = False
+
+            if player.num_stealth_tokens > 0:
+                all_players_no_more_stealth_tokens = False
 
         reward = -1
         if self.game.players_won():
             reward = 100
             done = True
         elif all_players_left:
+            reward = -100
+            done = True
+        elif all_players_no_more_stealth_tokens:
             reward = -100
             done = True
         elif self.game.vault_opened and not self.vault_was_opened:

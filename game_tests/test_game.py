@@ -1,5 +1,5 @@
 from burgle_env.envs.game.Game import *
-
+from burgle_env.envs.ScoringObservers import *
 
 def test_set_player_locations():
 
@@ -366,3 +366,19 @@ def test_out_of_bounds_moving():
     game.set_player_location(0, (0, 0, 0))
     game.take_action(0, 3)
     assert (game.players[0].location == (0, 0, 0))
+
+
+def test_players_lost_no_stealth_tokens():
+    game = EasyGame()
+
+    scoring = BasicScoringObserver(game=game)
+
+    scoring.before_action()
+
+    for player in game.players:
+        player.num_stealth_tokens = 0
+
+    score, done = scoring.after_action()
+
+    assert score < 0
+    assert done
