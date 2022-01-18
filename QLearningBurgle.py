@@ -5,16 +5,18 @@ import numpy as np
 import random
 from collections import deque
 
-moving_average = deque(maxlen=500)
+# moving_average = deque(maxlen=500)
 
 
 alpha = 0.25
 alpha_decay = 0.99995
 gamma = 0.99
+# epsilon_decay = 0.99999
 epsilon_decay = 0.99999
 min_epsilon = 0.05
 max_epsilon = 0.99
-epsilon = 0.99
+# epsilon = 0.99
+epsilon = 0.99999
 
 env_name = 'burgle_env:Burgle-v0'
 env = gym.make(env_name)
@@ -25,7 +27,7 @@ action_space = env.action_space
 q_values = np.zeros((4, 4, 2, 7, 5, 8))
 
 current_state = env.reset()
-all_scores = np.array([])
+# all_scores = np.array([])
 
 games_played = 0
 score = 0
@@ -36,8 +38,8 @@ done = False
 # while games_played < 1000000:
 # while games_played < 1000000 and (len(moving_average) == 0 or (sum(moving_average) / len(moving_average) < 91 and min(moving_average))) < 85:
 
-# num_turns_to_train = 1000000000
-num_turns_to_train = 10000000
+num_turns_to_train = 1000000000
+# num_turns_to_train = 10000000
 for t in tqdm(range(num_turns_to_train), mininterval=5):
 
     # if we finished the game last time, lets go to a random place to start
@@ -46,8 +48,8 @@ for t in tqdm(range(num_turns_to_train), mininterval=5):
         current_state = env.reset()
         done = False
 
-        moving_average.append(score)
-        all_scores = np.append(all_scores, score)
+        # moving_average.append(score)
+        # all_scores = np.append(all_scores, score)
 
         score = 0
 
@@ -80,7 +82,7 @@ for t in tqdm(range(num_turns_to_train), mininterval=5):
         current_state = next_state
 
 # print(all_scores)
-np.save('burgle_one_player_scores', all_scores, allow_pickle=True)
+# np.save('burgle_one_player_scores', all_scores, allow_pickle=True)
 np.save('burgle_one_player_policy', q_values, allow_pickle=True)
 
 print(f'Trained on {games_played} games')
