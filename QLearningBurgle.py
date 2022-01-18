@@ -18,7 +18,9 @@ max_epsilon = 0.99
 # epsilon = 0.99
 epsilon = 0.99999
 
-env_name = 'burgle_env:Burgle-v0'
+# env_name = 'burgle_env:Burgle-v0'
+env_name = 'burgle_env:BurgleGuard-v0'
+
 env = gym.make(env_name)
 
 action_space = env.action_space
@@ -79,6 +81,8 @@ for t in tqdm(range(num_turns_to_train), mininterval=5):
         alpha = max(0.001, alpha * alpha_decay)
 
         current_state = next_state
+
+        # print(env.game)
 
 # print(all_scores)
 # np.save('burgle_one_player_scores', all_scores, allow_pickle=True)

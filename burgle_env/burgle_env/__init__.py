@@ -8,5 +8,10 @@ register(
     entry_point='burgle_env.envs:EasyBurgleEnv'
 )
 
+register(
+    id='BurgleGuard-v0',
+    entry_point='burgle_env.envs:EasyGuardBurgleEnv'
+)
+
 
 

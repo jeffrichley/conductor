@@ -140,16 +140,27 @@ class Game:
 
         answer = ''
 
+        player_list = [player.location for player in self.players]
+
         for floor in range(self.num_floors):
             for y in range(4):
                 in_between_line = ''
                 for x in range(4):
                     tile = self._board.get_tile(floor, y, x)
 
-                    if player in self.players:
-                        (floor, y, x) = player.location
+                    if (floor, y, x) in player_list:
+                        # (floor, y, x) = player.location
                         # draw where the player is
-                        answer += str(player.player_num)
+                        guard_location = self.get_guard_print_info()
+                        if guard_location is not None and (floor, y, x) == guard_location:
+                            answer += '\u2639'
+                        else:
+                            # answer += str(player.player_num)
+                            answer += str(player_list.index((floor, y, x)))
+                    if self.get_guard_print_info() is not None and self.get_guard_print_info() == (floor, y, x):
+                        # guard_location = self.get_guard_print_info()
+                        # if guard_location == (floor, y, x):
+                        answer += 'G'
                     else:
                         # draw what type of tile it is
                         answer += tile.get_tile_short_hand()
@@ -173,12 +184,16 @@ class Game:
 
         return answer
 
+    def get_guard_print_info(self):
+        return None
 
 # first floor of the office job
 class EasyGame(Game):
 
-    def __init__(self, num_players=1):
+    def __init__(self, num_players=1, use_guard=False):
         super().__init__(1, num_players)
+
+        self.use_guard = use_guard
 
         # create the walls
         for x in range(4):
@@ -207,14 +222,27 @@ class EasyGame(Game):
         self._board.add_wall(0, 2, 3, 3, 3)
 
         # guard information
-        self.guard = Guard(floor=0, num_players=num_players, game=self)
+        if self.use_guard:
+            self.guard = Guard(floor=0, num_players=num_players, game=self)
 
         # randomly place the players
+        start_y = random.randint(0, 3)
+        start_x = random.randint(0, 3)
         for player_num in range(self.num_players):
-            player_location = (0, random.randint(0, 3), random.randint(0, 3))
+            player_location = (0, start_y, start_x)
             self.set_player_location(player_num, player_location)
 
         self.set_vault_information()
+
+    def move_player(self, player_num, action):
+        super().move_player(player_num, action)
+
+        self.move_guard()
+
+    def move_guard(self):
+        if self.use_guard:
+            self.guard.move()
+            # self.guard.location == self.players[0].location
 
     def get_board(self):
         return self._board
@@ -229,3 +257,10 @@ class EasyGame(Game):
                     won = False
 
         return won
+
+    def get_guard_print_info(self):
+
+        if self.use_guard:
+            return self.guard.location
+        else:
+            return None

@@ -102,18 +102,18 @@ def test_crack_safe():
 
     # make sure something changed
     assert (game.vault_combination_cracked == original_cracking)
-    assert(game.vault_opened == False)
+    assert not game.vault_opened
 
     # add the dice
     game.num_vault_dice = 6
 
     # lets try cracking a bunch of times
-    for _ in range(100):
+    for _ in range(1000):
         game.take_action(0, 5)
 
     # make sure something changed
     assert(game.vault_combination_cracked != original_cracking)
-    assert (game.vault_opened == True)
+    assert game.vault_opened
 
 
 def test_going_up_stairs():

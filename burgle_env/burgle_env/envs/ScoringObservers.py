@@ -27,7 +27,7 @@ class BasicScoringObserver():
         # -1 for any other actions
         all_players_left = True
         for player in self.game.players:
-            if player[0] == 0:
+            if player.location[0] == 0:
                 all_players_left = False
 
         reward = -1

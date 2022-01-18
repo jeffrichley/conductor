@@ -5,10 +5,15 @@ from copy import copy
 
 class Guard():
 
+    all_paths = None
+
     def __init__(self, floor, num_players, game):
 
         self.game = game
         self.board = self.game.get_board()
+
+        if Guard.all_paths is None:
+            self.calculate_all_paths()
 
         # resetting the patrol deck will bump this up by one
         self.num_patrol_moves = floor + 1
@@ -43,44 +48,12 @@ class Guard():
 
     def move(self):
 
-        # make sure we don't go back to where we are
-        # floor, y, x = self.location
-        # self.current_move_counts[y][x] = 1000000
-        #
-        # # look for the smallest value going in a clockwise rotation
-        # next_direction = (0, 0)
-        # current_tile = self.board.get_tile(floor, y, x)
-        # current_best = 9999
-        #
-        # # north
-        # if current_tile.north_tile is not None and not current_tile.north_wall:
-        #     current_best = self.current_move_counts[y-1][x]
-        #     next_direction = (-1, 0)
-        #
-        # # east
-        # if current_tile.east_tile is not None and not current_tile.east_wall:
-        #     if self.current_move_counts[y][x+1] < current_best:
-        #         current_best = self.current_move_counts[y][x+1]
-        #         next_direction = (0, 1)
-        #
-        # # south
-        # if current_tile.south_tile is not None and not current_tile.south_wall:
-        #     if self.current_move_counts[y+1][x] < current_best:
-        #         current_best = self.current_move_counts[y+1][x]
-        #         next_direction = (1, 0)
-        #
-        # # west
-        # if current_tile.west_tile is not None and not current_tile.west_wall:
-        #     if self.current_move_counts[y][x-1] < current_best:
-        #         current_best = self.current_move_counts[y][x-1]
-        #         next_direction = (0, -1)
-        #
-        # self.location = (floor, y + next_direction[0], x + next_direction[1])
-
         prev_location = self.location
-        self.location = self.current_path.pop()
-        # print(prev_location, self.location, self.destination)
 
+        if len(self.current_path) == 0:
+            self.new_destination()
+
+        self.location = self.current_path.pop()
 
         if self.location == self.destination:
             self.new_destination()
@@ -94,46 +67,61 @@ class Guard():
         # just in case we pulled the destination for where we are
         if self.destination == self.location:
             self.new_destination()
-
-        self.calculate_path()
+        else:
+            self.calculate_path()
         # print(len(self.patrol_deck))
 
     def calculate_path(self):
-        # self.current_move_counts = [[None for i in range(4)] for j in range(4)]
+        self.current_path = copy(Guard.all_paths[(self.location, self.destination)])
 
-        # start_tile = self.board.get_tile(self.location[0], self.location[1], self.location[2])
+    def calculate_all_paths(self):
+        Guard.all_paths = {}
 
-        self.current_path = None
+        for floor in range(self.game.num_floors):
+            for current_y in range(4):
+                for current_x in range(4):
+                    location = (floor, current_y, current_x)
 
-        q = PriorityQueue()
-        visited = [self.location]
+                    for destination_y in range(4):
+                        for destination_x in range(4):
+                            destination = (floor, destination_y, destination_x)
 
-        # step count, location, path to take
-        q.put((0, self.location, []))
-        _, y, x = self.location
-        # self.current_move_counts[y][x] = 0
+                            # run a basic A* following the clockwise rule of movement
 
-        while not q.empty() and self.current_path == None:
-            value, parent_location, parent_path = q.get()
-            parent_tile = self.board.get_tile(parent_location[0], parent_location[1], parent_location[2])
+                            current_path = None
 
-            new_value = value + 1
+                            q = PriorityQueue()
+                            visited = [location]
 
-            for child_tile, wall in [(parent_tile.north_tile, parent_tile.north_wall), (parent_tile.east_tile, parent_tile.east_wall), (parent_tile.south_tile, parent_tile.south_wall), (parent_tile.west_tile, parent_tile.west_wall)]:
-                # child_tile = getattr(parent_tile, direction)
-                if child_tile is not None and child_tile.location not in visited and not wall:
-                    child_path = copy(parent_path)
-                    child_path.append(child_tile.location)
-                    q.put((new_value, child_tile.location, child_path))
-                    visited.append(child_tile.location)
+                            # step count, location, path to take
+                            q.put((0, location, []))
+                            _, y, x = location
 
-                    # _, y, x = child_tile.location
-                    # self.current_move_counts[y][x] = new_value
+                            if location == destination:
+                                current_path = deque([])
 
-                    if child_tile.location == self.destination:
-                        self.current_path = deque(child_path)
+                            while not q.empty() and current_path == None:
+                                value, parent_location, parent_path = q.get()
+                                parent_tile = self.board.get_tile(parent_location[0], parent_location[1], parent_location[2])
 
-        # print(self.current_path)
+                                new_value = value + 1
+
+                                for child_tile, wall in [(parent_tile.north_tile, parent_tile.north_wall), (parent_tile.east_tile, parent_tile.east_wall), (parent_tile.south_tile, parent_tile.south_wall), (parent_tile.west_tile, parent_tile.west_wall)]:
+                                    # child_tile = getattr(parent_tile, direction)
+                                    if child_tile is not None and child_tile.location not in visited and not wall:
+                                        child_path = copy(parent_path)
+                                        child_path.append(child_tile.location)
+                                        q.put((new_value, child_tile.location, child_path))
+                                        visited.append(child_tile.location)
+
+                                        # _, y, x = child_tile.location
+                                        # self.current_move_counts[y][x] = new_value
+
+                                        if child_tile.location == destination:
+                                            current_path = deque(child_path)
+
+                            Guard.all_paths[(location, destination)] = current_path
+
 
 
 

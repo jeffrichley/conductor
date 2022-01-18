@@ -9,9 +9,11 @@ from burgle_env.envs.ScoringObservers import *
 
 class EasyBurgleEnv(gym.Env):
 
-    def __init__(self):
+    def __init__(self, use_guard=False):
 
-        self.game = EasyGame()
+        self.use_guard = use_guard
+
+        self.game = EasyGame(use_guard=self.use_guard)
         self.scoring = BasicScoringObserver(self.game)
 
         # how many actions do we have to learn?
@@ -42,7 +44,7 @@ class EasyBurgleEnv(gym.Env):
     def reset(self):
 
         # TODO: we can make this more efficient than just creating a new game
-        self.game = EasyGame()
+        self.game = EasyGame(use_guard=self.use_guard)
         self.scoring = BasicScoringObserver(self.game)
 
         return self.next_observation()
@@ -56,7 +58,7 @@ class EasyBurgleEnv(gym.Env):
         new_observation = np.zeros((5), dtype=np.int)
 
         # add the player information
-        player_location = self.game.players[self.game.current_player]
+        player_location = self.game.players[self.game.current_player].location
         new_observation[0] = int(player_location[1])
         new_observation[1] = int(player_location[2])
 
@@ -73,3 +75,9 @@ class EasyBurgleEnv(gym.Env):
         new_observation[4] = int(self.game.num_current_player_turns)
 
         return new_observation
+
+
+class EasyGuardBurgleEnv(EasyBurgleEnv):
+
+    def __init__(self):
+        super().__init__(use_guard=True)
