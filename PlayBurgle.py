@@ -2,7 +2,7 @@ import numpy as np
 import gym
 from tqdm import tqdm
 
-q_values = np.load('burgle_one_player_policy.npy')
+q_values = np.load('policies/Burgle-v0/30000000_burgle_one_player_policy.npy')
 
 env_name = 'burgle_env:Burgle-v0'
 env = gym.make(env_name)
@@ -13,8 +13,9 @@ num_wins = 0
 num_played = 0
 score_history = []
 
-# for _ in range(10000):
-for t in tqdm(range(10000), mininterval=1):
+num_rounds = 1000
+
+for t in tqdm(range(num_rounds), mininterval=1):
     for x in range(4):
         for y in range(4):
 
@@ -43,6 +44,8 @@ for t in tqdm(range(10000), mininterval=1):
 
                 score += reward
                 current_state = next_state
+
+            # print(y, x, score)
 
             current_state = env.reset()
             done = False

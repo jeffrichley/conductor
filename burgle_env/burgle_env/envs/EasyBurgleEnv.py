@@ -5,12 +5,14 @@ from gym.spaces import Box, Discrete
 
 from burgle_env.envs.game.Board import *
 from burgle_env.envs.game.Game import EasyGame
+from burgle_env.envs.ScoringObservers import *
 
 class EasyBurgleEnv(gym.Env):
 
     def __init__(self):
 
         self.game = EasyGame()
+        self.scoring = BasicScoringObserver(self.game)
 
         # how many actions do we have to learn?
         self.action_space = Discrete(8)
@@ -20,9 +22,7 @@ class EasyBurgleEnv(gym.Env):
 
     def step(self, action):
 
-        vault_was_opened = self.game.vault_opened
-        # we need to subtract 1 because it is 1 based and will never have 0 be False
-        previous_cracked_number = self.game.vault_combination_cracked.count(True) - 1
+        self.scoring.before_action()
 
         # take the action in the game
         self.game.take_action(self.game.current_player, action)
@@ -30,31 +30,7 @@ class EasyBurgleEnv(gym.Env):
         observation = self.next_observation()
         done = self.game.players_won()
 
-        # we need to subtract 1 because it is 1 based and will never have 0 be False
-        current_cracked_number = self.game.vault_combination_cracked.count(True) - 1
-
-        # Rewards
-        # 100 for winning
-        # -100 for losing
-        # 10 for cracking the safe
-        # 1 for cracking a number of the safe
-        # -1 for any other actions
-        all_players_left = True
-        for player in self.game.players:
-            if player[0] == 0:
-                all_players_left = False
-
-        reward = -1
-        if self.game.players_won():
-            reward = 100
-            done = True
-        elif all_players_left:
-            reward = -100
-            done = True
-        elif self.game.vault_opened and not vault_was_opened:
-            reward = 10
-        elif current_cracked_number > previous_cracked_number:
-            reward = 1
+        reward, done = self.scoring.after_action()
 
         # if the current player has taken their 4 turns, go to the next player
         if self.game.num_current_player_turns >= 4:
@@ -64,8 +40,11 @@ class EasyBurgleEnv(gym.Env):
 
     # def _reset(self):
     def reset(self):
+
         # TODO: we can make this more efficient than just creating a new game
         self.game = EasyGame()
+        self.scoring = BasicScoringObserver(self.game)
+
         return self.next_observation()
 
     def render(self, mode='human', close=False):

@@ -35,11 +35,10 @@ score = 0
 done = False
 
 # play a bunch of games
-# while games_played < 1000000:
-# while games_played < 1000000 and (len(moving_average) == 0 or (sum(moving_average) / len(moving_average) < 91 and min(moving_average))) < 85:
 
-num_turns_to_train = 1000000000
+# num_turns_to_train = 1000000000
 # num_turns_to_train = 10000000
+num_turns_to_train = 30000000
 for t in tqdm(range(num_turns_to_train), mininterval=5):
 
     # if we finished the game last time, lets go to a random place to start
@@ -83,7 +82,7 @@ for t in tqdm(range(num_turns_to_train), mininterval=5):
 
 # print(all_scores)
 # np.save('burgle_one_player_scores', all_scores, allow_pickle=True)
-np.save('burgle_one_player_policy', q_values, allow_pickle=True)
+np.save(f'{num_turns_to_train}_burgle_one_player_policy', q_values, allow_pickle=True)
 
 print(f'Trained on {games_played} games')
 
