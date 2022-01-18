@@ -1,6 +1,7 @@
 from burgle_env.envs.game.Board import Board
-from burgle_env.envs.game.Tiles import *
 from burgle_env.envs.game.Player import *
+from burgle_env.envs.game.Guard import *
+from game_tests.Factory import *
 
 class Game:
 
@@ -13,7 +14,7 @@ class Game:
 
         # player information
         self.num_players = num_players
-        self.players = [Player(num) for num in range(num_players)]
+        self.players = [Player(player_num=num) for num in range(num_players)]
 
         self.current_player = 0
         self.num_current_player_turns = 0
@@ -205,12 +206,18 @@ class EasyGame(Game):
         self._board.add_wall(0, 2, 1, 3, 1)
         self._board.add_wall(0, 2, 3, 3, 3)
 
+        # guard information
+        self.guard = Guard(floor=0, num_players=num_players, game=self)
+
         # randomly place the players
         for player_num in range(self.num_players):
             player_location = (0, random.randint(0, 3), random.randint(0, 3))
             self.set_player_location(player_num, player_location)
 
         self.set_vault_information()
+
+    def get_board(self):
+        return self._board
 
     def players_won(self):
         won = False
