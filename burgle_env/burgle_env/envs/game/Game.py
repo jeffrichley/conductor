@@ -1,5 +1,6 @@
 from burgle_env.envs.game.Board import Board
 from burgle_env.envs.game.Tiles import *
+from burgle_env.envs.game.Player import *
 
 class Game:
 
@@ -12,7 +13,7 @@ class Game:
 
         # player information
         self.num_players = num_players
-        self.players = [(-1, -1, -1) for _ in range(num_players)]
+        self.players = [Player(num) for num in range(num_players)]
 
         self.current_player = 0
         self.num_current_player_turns = 0
@@ -25,7 +26,7 @@ class Game:
         self.num_vault_dice = 0
 
     def set_player_location(self, player_num, location):
-        self.players[player_num] = location
+        self.players[player_num].move_to(location)
 
     def take_action(self, player_num, action):
 
@@ -41,7 +42,7 @@ class Game:
             # use the stairs
             elif action == 6:
                 # TODO: we need to extend this to check if the tile above or below are stairs going in the correct direction
-                player_next_location = list(self.players[player_num])
+                player_next_location = list(self.players[player_num].location)
                 tile = self._board.get_tile(player_next_location[0], player_next_location[1], player_next_location[2])
 
                 # if we are on the actual stairs, we always go up
@@ -51,7 +52,7 @@ class Game:
 
                 # TODO: need to add the going down feature
 
-                self.players[player_num] = tuple(player_next_location)
+                self.players[player_num].move_to(tuple(player_next_location))
 
             # drop a die on the safe
             elif action == 7:
@@ -63,7 +64,7 @@ class Game:
 
     def drop_dice(self, player_num):
 
-        if self.num_current_player_turns < 3 and self.num_vault_dice < 6 and self.vault_tile.location == self.players[player_num]:
+        if self.num_current_player_turns < 3 and self.num_vault_dice < 6 and self.vault_tile.location == self.players[player_num].location:
             self.num_vault_dice += 1
             self.num_current_player_turns += 2
 
@@ -84,7 +85,7 @@ class Game:
 
     def move_player(self, player_num, action):
 
-        next_location = list(self.players[player_num])
+        next_location = list(self.players[player_num].location)
         current_tile = self._board.get_tile(next_location[0], next_location[1], next_location[2])
 
         if current_tile.can_take_action(action):
@@ -106,7 +107,7 @@ class Game:
             elif action == 3:
                 next_location[2] -= 1
 
-        self.players[player_num] = tuple(next_location)
+        self.players[player_num].move_to(tuple(next_location))
 
     def set_vault_information(self):
 
@@ -144,9 +145,10 @@ class Game:
                 for x in range(4):
                     tile = self._board.get_tile(floor, y, x)
 
-                    if (floor, y, x) in self.players:
+                    if player in self.players:
+                        (floor, y, x) = player.location
                         # draw where the player is
-                        answer += str(self.players.index((floor, y, x)))
+                        answer += str(player.player_num)
                     else:
                         # draw what type of tile it is
                         answer += tile.get_tile_short_hand()
@@ -216,7 +218,7 @@ class EasyGame(Game):
         if super().players_won():
             won = True
             for player in self.players:
-                if player[0] != 1:
+                if player.location[0] != 1:
                     won = False
 
         return won

@@ -6,12 +6,12 @@ def test_set_player_locations():
     game = Game()
 
     # make sure they start off the board
-    assert(game.players[0] == (-1, -1, -1))
+    assert(game.players[0].location == (-1, -1, -1))
 
     game.set_player_location(0, (0, 1, 1))
 
     # make sure the player was moved
-    assert (game.players[0] == (0, 1, 1))
+    assert (game.players[0].location == (0, 1, 1))
 
 
 def test_player_can_move():
@@ -21,22 +21,22 @@ def test_player_can_move():
     # move north
     game.set_player_location(0, (0, 2, 1))
     game.move_player(0, 0)
-    assert(game.players[0] == (0, 1, 1))
+    assert(game.players[0].location == (0, 1, 1))
 
     # move east
     game.set_player_location(0, (0, 2, 0))
     game.move_player(0, 1)
-    assert (game.players[0] == (0, 2, 1))
+    assert (game.players[0].location == (0, 2, 1))
 
     # move south
     game.set_player_location(0, (0, 0, 0))
     game.move_player(0, 2)
-    assert (game.players[0] == (0, 1, 0))
+    assert (game.players[0].location == (0, 1, 0))
 
     # move west
     game.set_player_location(0, (0, 2, 1))
     game.move_player(0, 3)
-    assert (game.players[0] == (0, 2, 0))
+    assert (game.players[0].location == (0, 2, 0))
 
 
 def test_player_cant_move_through_walls():
@@ -46,22 +46,22 @@ def test_player_cant_move_through_walls():
     # move north
     game.set_player_location(0, (0, 3, 1))
     game.move_player(0, 0)
-    assert(game.players[0] == (0, 3, 1))
+    assert(game.players[0].location == (0, 3, 1))
 
     # move east
     game.set_player_location(0, (0, 0, 0))
     game.move_player(0, 1)
-    assert (game.players[0] == (0, 0, 0))
+    assert (game.players[0].location == (0, 0, 0))
 
     # move south
     game.set_player_location(0, (0, 2, 1))
     game.move_player(0, 2)
-    assert (game.players[0] == (0, 2, 1))
+    assert (game.players[0].location == (0, 2, 1))
 
     # move west
     game.set_player_location(0, (0, 0, 1))
     game.move_player(0, 3)
-    assert (game.players[0] == (0, 0, 1))
+    assert (game.players[0].location == (0, 0, 1))
 
 
 def test_vault_information():
@@ -124,14 +124,14 @@ def test_going_up_stairs():
     # go up the stairs
     game.take_action(0, 6)
 
-    assert(game.players[0] == (1, 3, 0))
+    assert(game.players[0].location == (1, 3, 0))
 
     game.set_player_location(0, (0, 0, 0))
 
     # try going up the stairs even though we aren't on stairs
     game.take_action(0, 6)
 
-    assert (game.players[0] == (0, 0, 0))
+    assert (game.players[0].location == (0, 0, 0))
 
 
 def test_drop_dice():
@@ -266,13 +266,13 @@ def test_players_have_no_moves():
     game.set_player_location(0, (0, 0, 0))
     game.take_action(0, 2)
 
-    assert(game.players[0] == (0, 0, 0))
+    assert(game.players[0].location == (0, 0, 0))
 
     game.next_players_turn()
 
     game.take_action(0, 2)
 
-    assert (game.players[0] == (0, 1, 0))
+    assert (game.players[0].location == (0, 1, 0))
 
 
 def test_play_game():
@@ -350,19 +350,19 @@ def test_out_of_bounds_moving():
     # north
     game.set_player_location(0, (0, 0, 0))
     game.take_action(0, 0)
-    assert(game.players[0] == (0, 0, 0))
+    assert(game.players[0].location == (0, 0, 0))
 
     # east
     game.set_player_location(0, (0, 0, 3))
     game.take_action(0, 1)
-    assert (game.players[0] == (0, 0, 3))
+    assert (game.players[0].location == (0, 0, 3))
 
     # south
     game.set_player_location(0, (0, 3, 3))
     game.take_action(0, 2)
-    assert (game.players[0] == (0, 3, 3))
+    assert (game.players[0].location == (0, 3, 3))
 
     # west
     game.set_player_location(0, (0, 0, 0))
     game.take_action(0, 3)
-    assert (game.players[0] == (0, 0, 0))
+    assert (game.players[0].location == (0, 0, 0))
