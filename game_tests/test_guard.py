@@ -36,9 +36,13 @@ def test_guard_moved():
     guard = Guard(floor=0, num_players=1, game=game)
     guard_initial_location = guard.location
 
-    guard.move()
+    attempt = 0
+    moved = False
+    while attempt < 50 and not moved:
+        guard.move()
+        moved = guard.location != guard_initial_location
 
-    assert(guard.location != guard_initial_location)
+    assert moved
 
 
 def test_guard_getting_faster():
@@ -48,11 +52,27 @@ def test_guard_getting_faster():
     guard = Guard(floor=0, num_players=1, game=game)
     assert (guard.num_patrol_moves == 2)
 
-    while len(guard.patrol_deck) > 0:
+    attempt = 0
+    increased = False
+    while attempt < 1000 and not increased:
         guard.move()
+        increased = guard.num_patrol_moves > 2
+
+    assert increased
+
+
+def test_catching_player():
+
+    game = EasyGame(use_guard=True)
+    guard = game.guard
+
+    next_patrol_step = guard.current_path[0]
+
+    game.players[0].location = next_patrol_step
+
+    assert game.players[0].num_stealth_tokens == 3
 
     guard.move()
 
-    assert (guard.num_patrol_moves == 3)
-
+    assert game.players[0].num_stealth_tokens == 2
 

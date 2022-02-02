@@ -5,7 +5,8 @@ start_state = (9, 11)
 action_space = ['right', 'left', 'stick', 'up', 'down']
 num_actions = len(action_space)
 
-num_sessions = 1000000
+# num_sessions = 1000000
+num_sessions = 100000
 num_plays = 500
 
 alpha = 0.6

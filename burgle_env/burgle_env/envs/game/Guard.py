@@ -47,16 +47,19 @@ class Guard():
         self.num_patrol_moves += 1
 
     def move(self):
+        for _ in range(self.num_patrol_moves):
 
-        prev_location = self.location
+            prev_location = self.location
 
-        if len(self.current_path) == 0:
-            self.new_destination()
+            self.location = self.current_path.popleft()
 
-        self.location = self.current_path.pop()
+            # check to see if we caught any players
+            for player in self.game.players:
+                if self.location == player.location:
+                    player.num_stealth_tokens -= 1
 
-        if self.location == self.destination:
-            self.new_destination()
+            if self.location == self.destination:
+                self.new_destination()
 
     def new_destination(self):
         if len(self.patrol_deck) == 0:
@@ -69,7 +72,6 @@ class Guard():
             self.new_destination()
         else:
             self.calculate_path()
-        # print(len(self.patrol_deck))
 
     def calculate_path(self):
         self.current_path = copy(Guard.all_paths[(self.location, self.destination)])

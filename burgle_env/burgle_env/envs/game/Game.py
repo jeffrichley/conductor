@@ -237,12 +237,14 @@ class EasyGame(Game):
     def move_player(self, player_num, action):
         super().move_player(player_num, action)
 
+
+    def next_players_turn(self):
         self.move_guard()
+        super().next_players_turn()
 
     def move_guard(self):
         if self.use_guard:
             self.guard.move()
-            # self.guard.location == self.players[0].location
 
     def get_board(self):
         return self._board

@@ -104,3 +104,12 @@ for i in range(10):
 
         state = next_state
 
+
+q1 = p1_q_values_final[(3, 7)]
+q2 = p2_q_values_final[(3, 7)]
+
+print(minimax_value((q1 - q2) / 2))
+print(minimax_value((q1 - q2)) / 2)
+print(minimax_value((q1/2 - q2/2)))
+print(minimax_value(q1 / 2) - minimax_value(q2 / 2))
+print((minimax_value(q1) - minimax_value(q2))/2)

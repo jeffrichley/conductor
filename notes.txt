@@ -1,1 +1,4 @@
 Ran COCO-Q Q-Learning 1000 times with the results of left: 504 (50.4%)  right: 496 (49.6%)  bad: 0 (0.0%)
+
+100%|██████████| 1000000000/1000000000 [6:03:40<00:00, 45829.36it/s]
+Trained on 43214051 games
