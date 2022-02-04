@@ -10,10 +10,12 @@ class TurnPrisoner():
         self.num_actions = len(self.action_space)
         self.num_spaces = 9
 
-        self.num_sessions = 10000
+        # self.num_sessions = 10000
+        self.num_sessions = 100000
         self.num_plays = 500
 
         self.alpha = 0.25
+        # self.alpha = 0.1
         self.alpha_decay = 0.99995
         self.gamma = 0.99
         self.epsilon_decay = 0.99999

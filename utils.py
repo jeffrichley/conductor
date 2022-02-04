@@ -2,8 +2,8 @@ import math
 import itertools
 from numpy import unravel_index
 
-# from prisoner_game import *
-from turkey_game import *
+from prisoner_game import *
+# from turkey_game import *
 
 from cvxopt import matrix, solvers
 from cvxopt.modeling import op

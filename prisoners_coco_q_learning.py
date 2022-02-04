@@ -41,6 +41,10 @@ while count < num_sessions:
         current_state = (3, 5)
     else:
 
+        if current_state == (1, 7):
+            p1_action = 1
+            p2_action = 0
+
         # what kind of rewards to we get for the state and joint action?
         p1_reward, p2_reward = get_rewards_for_state_joint_action(current_state, p1_action, p2_action)
 
